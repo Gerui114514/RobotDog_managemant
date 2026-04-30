@@ -5,16 +5,12 @@ const unlockBtn = document.getElementById('unlockBtn');
 const pupils = document.querySelectorAll('.pupil');
 const hidden_1 = document.querySelectorAll('.hidden_1');
 const hidden_2 = document.querySelectorAll('.hidden_2');
+const eye = document.querySelectorAll('.eye')
 
 let currentMood = 'neutral';
 let resetTimer = null, idleTimer = null, blinkTimer = null;
 const IDLE_TIME = 1200000;
 let socket = null, audioUnlocked = false;
-
-let R = Math.random(0,256)
-let G = Math.random(0,256)
-let B = Math.random(0,256)
-let eye_coloer = (R,G,B)
 
 // 点击按钮：触发全屏 + 解锁声音
 unlockBtn.addEventListener('click', async () => {
@@ -28,6 +24,14 @@ unlockBtn.addEventListener('click', async () => {
     unlockBtn.style.display = 'none';
     audioPlayer.play().catch(e => { });
 });
+
+function changeEyeColor(){
+    let R = Math.random(0,256);
+    let G = Math.random(0,256);
+    let B = Math.random(0,256);
+    let EyeColor = (R, G ,B);
+    
+}
 
 function getUrlParameter(name) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -67,6 +71,7 @@ function setMood(mood) {
             case 'happy':
                 hidden_1.forEach(h => h.style.opacity = '0');
                 hidden_2.forEach(h => h.style.opacity = '0');
+                pupils.forEach(p => p.style.opacity = '0');
                 break;
             case 'excited':
                 hidden_1.forEach(h => h.style.opacity = '0');
@@ -82,6 +87,7 @@ function setMood(mood) {
             currentMood = 'neutral';
             startIdleTimer();
             scheduleBlink();
+            pupils.forEach(p => p.style.opacity = '0.9')
             hidden_1.forEach(h => h.style.opacity = '1');
             hidden_2.forEach(h => h.style.opacity = '1');
         }, 1500);

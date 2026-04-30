@@ -114,30 +114,6 @@ body {
     border-radius: 0;
     background-color: var(--eye-angry-color);
     box-shadow: var(--glow-angry);
-    animation: angry-shake-anim 0.1s infinite;
-    transform-origin: center center;
-}
-
-@keyframes angry-shake-anim {
-    0% {
-        transform: translate(1px, 1px);
-    }
-
-    25% {
-        transform: translate(-1px, -5px);
-    }
-
-    50% {
-        transform: translate(-5px, 5px);
-    }
-
-    75% {
-        transform: translate(5px, -5px);
-    }
-
-    100% {
-        transform: translate(5px, 5px);
-    }
 }
 
 .face.mood-angry .eye.left {
@@ -173,11 +149,16 @@ body {
 }
 /* 开心样式变化 */
 .face.mood-happy .eye {
-    width: 120px;
-    height: 75px;
-    border-radius: 5px 5px 0 0;
-
+    width: 140px;
+    height: 120px;
+    background-color: rgba(255, 255, 255, 0); 
+    border: 20px solid var(--eye-color);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    box-shadow: none;
 }
+
+
 /* 兴奋样式变化 */
 .face.mood-excited .eye {
     width: 80px;
