@@ -11,6 +11,11 @@ let resetTimer = null, idleTimer = null, blinkTimer = null;
 const IDLE_TIME = 1200000;
 let socket = null, audioUnlocked = false;
 
+let R = Math.random(0,256)
+let G = Math.random(0,256)
+let B = Math.random(0,256)
+let eye_coloer = (R,G,B)
+
 // 点击按钮：触发全屏 + 解锁声音
 unlockBtn.addEventListener('click', async () => {
     // 浏览器原生全屏
@@ -58,6 +63,19 @@ function setMood(mood) {
             case 'angry':
                 hidden_1.forEach(h => h.style.opacity = '0');
                 hidden_2.forEach(h => h.style.opacity = '0');
+                break;
+            case 'happy':
+                hidden_1.forEach(h => h.style.opacity = '0');
+                hidden_2.forEach(h => h.style.opacity = '0');
+                break;
+            case 'excited':
+                hidden_1.forEach(h => h.style.opacity = '0');
+                hidden_2.forEach(h => h.style.opacity = '0');
+                break;
+            case 'confused':
+                hidden_1.forEach(h => h.style.opacity = '0');
+                hidden_2.forEach(h => h.style.opacity = '0');
+                break;
         }
         resetTimer = setTimeout(() => {
             face.className = 'face';
