@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>几何表情 - 遥控器 (WS)</title>
+    <style>
+        body {
+            background:#111;
+            color:#00f0ff;
+            font-family:sans-serif;
+            padding:30px;
+            text-align:center;
+        }
+        button {
+            background:#222;
+            border:2px solid #00f0ff;
+            color:#00f0ff;
+            padding:15px 20px;
+            margin:10px;
+            cursor:pointer;
+        }
+        button:hover {
+            background:#333;
+            box-shadow:0 0 10px #00f0ff;
+        }
+        input[type="text"] {
+            background: #222;
+            border: 2px solid #00f0ff;
+            color: #00f0ff;
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        /* 新增按钮组样式 */
+        .mood-buttons {
+            margin: 20px 0;
+        }
+        .mood-buttons button {
+            margin: 5px;
+            padding: 12px 15px;
+            min-width: 100px;
+        }
+    </style>
+</head>
+<body>
+<h1>遥控器 (Socket.IO)</h1>
+
+<!-- 原有按钮 -->
+<div class="mood-buttons">
+    <h3>表情按钮组</h3>
+    <button onclick="send('angry')">A - 生气</button>
+    <button onclick="send('happy')">H - 开心</button>
+    <button onclick="send('excited')">E - 兴奋</button>
+    <button onclick="send('confused')">Q - 疑惑</button>
+    <button onclick="send('neutral')">N - 中立</button>
+    <button onclick="send('sleep')">S - 睡眠</button>
+</div>
+
+<!-- 新增按钮组：1.愤怒 2.开心 3.兴奋 4.疑惑 -->
+<div class="mood-buttons">
+    <h3>机器狗动作按钮组</h3>
+    <button onclick="sendById('1')">1 - 愤怒</button>
+    <button onclick="sendById('2')">2 - 开心</button>
+    <button onclick="sendById('3')">3 - 兴奋</button>
+    <button onclick="sendById('4')">4 - 疑惑</button>
+</div>
+
+<!-- 文本输入框 -->
+<div style="margin: 20px 0;">
+    <input type="text" id="textInput" placeholder="输入文本..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendText()">发送文本</button>
+</div>
+
+<div id="status">状态: 连接中...</div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    const statusElement = document.getElementById('status');
+    const textInput = document.getElementById('textInput');
+    let socket = null;
+
+    function connect() {
+        socket = io('http://localhost:5000', {
+            transports: ['websocket'],
+            autoConnect: true,
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000
+        });
+
+        socket.on('connect', () => {
+            console.log("✅ Socket.IO Connected");
+            statusElement.textContent = "状态: 已连接";
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error("❌ Socket.IO 连接错误:", error);
+            statusElement.textContent = "状态: 连接错误";
+        });
+
+        socket.on('disconnect', () => {
+            console.log("❌ Socket.IO Disconnected");
+            statusElement.textContent = "状态: 连接断开，正在重连...";
+        });
+
+        socket.on('message', (data) => {
+            try {
+                const message_data = JSON.parse(data);
+                console.log("📨 收到消息:", message_data);
+                if (message_data.type === 'pong') {
+                    statusElement.textContent = "状态: 表情页面在线";
+                }
+            } catch (e) {
+                console.log("收到非JSON消息:", data);
+            }
+        });
+
+        socket.on('command', (data) => {
+            try {
+                const message_data = JSON.parse(data);
+                console.log("⚙️ 收到 command:", message_data);
+            } catch (e) {
+                console.log("收到非JSON command:", data);
+            }
+        });
+    }
+
+    function send(mood) {
+        if (socket && socket.connected) {
+            const message = { type: 'command', command: 'SET_MOOD', value: mood };
+            socket.emit('message', JSON.stringify(message));
+            console.log("📤 发送指令:", mood);
+            statusElement.textContent = `发送: ${mood}`;
+        } else {
+            statusElement.textContent = "状态: 未连接";
+        }
+    }
+
+    // 新增函数：发送数字ID对应的指令
+    function sendById(id) {
+        if (socket && socket.connected) {
+            let mood;
+            switch(id) {
+                case '1': mood = 'angry'; break;
+                case '2': mood = 'happy'; break;
+                case '3': mood = 'excited'; break;
+                case '4': mood = 'confused'; break;
+                default: mood = 'neutral'; break;
+            }
+
+            const message = {
+                type: 'command',
+                command: 'SET_MOOD',
+                value: mood,
+                id: id // 添加ID标识
+            };
+
+            socket.emit('message', JSON.stringify(message));
+            console.log("📤 发送ID指令:", id, "->", mood);
+            statusElement.textContent = `发送ID: ${id} (${mood})`;
+        } else {
+            statusElement.textContent = "状态: 未连接";
+        }
+    }
+
+    // 发送文本消息
+    function sendText() {
+        const text = textInput.value.trim();
+        if (text && socket && socket.connected) {
+            const message = { type: 'text', content: text, timestamp: Date.now() };
+            socket.emit('message', JSON.stringify(message));
+            console.log("📤 发送文本:", text);
+            statusElement.textContent = `发送文本: ${text}`;
+            textInput.value = ''; // 清空输入框
+        } else {
+            statusElement.textContent = "状态: 未连接或文本为空";
+        }
+    }
+
+    // 回车发送文本
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendText();
+        }
+    }
+
+    window.onload = connect;
+</script>
+</body>
+</html>
