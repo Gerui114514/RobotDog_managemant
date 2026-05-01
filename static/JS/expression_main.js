@@ -26,11 +26,13 @@ unlockBtn.addEventListener('click', async () => {
 });
 
 function changeEyeColor(){
-    let R = Math.random(0,256);
-    let G = Math.random(0,256);
-    let B = Math.random(0,256);
-    let EyeColor = (R, G ,B);
-    
+    let R = Math.floor(Math.random()*256);
+    let G = Math.floor(Math.random()*256);
+    let B = Math.floor(Math.random()*256);
+    let EyeColor = `rgb(${R}, ${G}, ${B})`;
+    eye.forEach(e => e.style.setProperty('--eye-color', EyeColor));
+    eye[0].style.backgroundColor = EyeColor;
+    eye[1].style.backgroundColor = EyeColor;
 }
 
 function getUrlParameter(name) {
@@ -58,9 +60,12 @@ function applyFixedRotationAndScale() {
 }
 // --- 表情控制 ---
 function setMood(mood) {
+    let ischangeColor = null;
     face.className = 'face';
+
     if (resetTimer) clearTimeout(resetTimer);
     currentMood = mood;
+    
     if (mood !== 'neutral' && mood !== 'sleep') {
         face.classList.add(`mood-${mood}`);
         switch (mood) {
@@ -72,10 +77,17 @@ function setMood(mood) {
                 hidden_1.forEach(h => h.style.opacity = '0');
                 hidden_2.forEach(h => h.style.opacity = '0');
                 pupils.forEach(p => p.style.opacity = '0');
+                eye.forEach(e => e.style.backgroundColor = '#222');
                 break;
             case 'excited':
                 hidden_1.forEach(h => h.style.opacity = '0');
                 hidden_2.forEach(h => h.style.opacity = '0');
+                pupils.forEach(p => {
+                    p.style.width = '120px';
+                    p.style.height = '100px';
+                    p.style.borderRadius = '50% 50% 0 0';
+                });
+                ischangeColor = setInterval(() => changeEyeColor(), 100);
                 break;
             case 'confused':
                 hidden_1.forEach(h => h.style.opacity = '0');
@@ -87,9 +99,17 @@ function setMood(mood) {
             currentMood = 'neutral';
             startIdleTimer();
             scheduleBlink();
-            pupils.forEach(p => p.style.opacity = '0.9')
+            eye.forEach(e => e.style.backgroundColor = '#00f0ff');
+            pupils.forEach(p => {
+                p.style.opacity = '0.9'
+                p.style.width = 'var(--original-pupil-size)';
+                p.style.height = 'var(--original-pupil-size)';
+                p.style.borderRadius = '50%';
+            });
             hidden_1.forEach(h => h.style.opacity = '1');
             hidden_2.forEach(h => h.style.opacity = '1');
+            clearInterval(ischangeColor);
+            ischangeColor = null;
         }, 1500);
     } else {
         if (mood !== 'neutral') face.classList.add(`mood-${mood}`);

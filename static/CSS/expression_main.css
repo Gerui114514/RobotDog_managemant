@@ -57,6 +57,7 @@ body {
     /* 眼睛大小写死 */
     width: var(--original-eye-size);
     height: var(--original-eye-size);
+    border: none;
     border-radius: 50%;
     background: var(--eye-color);
     box-shadow: var(--glow);
@@ -150,19 +151,83 @@ body {
 /* 开心样式变化 */
 .face.mood-happy .eye {
     width: 140px;
-    height: 120px;
-    background-color: rgba(255, 255, 255, 0); 
-    border: 20px solid var(--eye-color);
+    height: 110px;
+    background-color: rgb(34, 34, 34); 
+    border: 20px solid #00f0ff;
     border-bottom: none;
     border-radius: 50% 50% 0 0;
     box-shadow: none;
+    animation: teetertotter 0.5s infinite;
+    transform-origin: center center;
 }
 
+@keyframes teetertotter {
+    0% {
+        transform: translateY(0px);
+    }
+    10% {
+        transform: translateY(1px);
+    }
+    20% {
+        transform: translateY(-1px);
+    }
+    30% {
+        transform: translateY(1px);
+    }
+    40% {
+        transform: translateY(-1px);
+    }
+    50% {
+        transform: translateY(1px);
+    }
+    60% {
+        transform: translateY(-1px);
+    }
+    70% {
+        transform: translateY(1px);
+    }
+    80% {
+        transform: translateY(-1px);
+    }
+    90% {
+        transform: translateY(1px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.face.mood-happy::after {
+    content: '⭐';
+    position: absolute;
+    left: calc(50% + var(--original-eye-gap) / 2 + var(--original-eye-size) / 2 + 80px);
+    top: calc(50% - var(--original-eye-size) / 2 - 80px);
+    font-size: 70px;
+    color: var(--eye-color);
+    font-weight: bold;
+    opacity: 0;
+    offset-path: path('M 0 0 C 100 50, 200 50, 300 0');
+    offset-distance: 0;
+    animation: happy-in-1 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes happy-in-1 {
+    0% {
+        transform: translateY(300px);
+    }
+    10% {
+        opacity: 1;
+        transform: scale(1) translateY(-100px);
+    }
+    20% {
+        transform: translate(40px, 0px);
+    }
+}
 
 /* 兴奋样式变化 */
 .face.mood-excited .eye {
-    width: 80px;
-    height: 60px;
+    width: 150px;
+    height: 120px;
     border-radius: 50% 50% 0 0;
     animation: shake-anim 0.1s infinite;
     transform-origin: center center;
@@ -170,26 +235,27 @@ body {
 
 @keyframes shake-anim {
     0% {
-        transform: translate(5px, 5px);
+        transform: translate(2px, 2px);
     }
 
     25% {
-        transform: translate(-5px, -5px);
+        transform: translate(-2px, -2px);
     }
 
     50% {
-        transform: translate(-5px, 5px);
+        transform: translate(-2px, 2px);
     }
 
     75% {
-        transform: translate(5px, -5px);
+        transform: translate(2px, -2px);
     }
 
     100% {
-        transform: translate(5px, 5px);
+        transform: translate(2px, 2px);
     }
 }
 
+/* 疑惑样式变化 */
 .face.mood-confused .eye {
     width: 70px;
     height: 40px;
