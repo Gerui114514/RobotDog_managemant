@@ -38,6 +38,7 @@ body {
     z-index: 10;
     /* 强制固定尺寸，禁止缩放挤压 */
     flex-shrink: 0;
+    border-radius: 20px;
 }
 
 .face {
@@ -51,6 +52,7 @@ body {
     gap: var(--original-eye-gap);
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
     position: relative;
+    border-radius: 20px;
 }
 
 .eye {
@@ -197,30 +199,86 @@ body {
     }
 }
 
+/* 右侧星星 */
 .face.mood-happy::after {
     content: '⭐';
     position: absolute;
     left: calc(50% + var(--original-eye-gap) / 2 + var(--original-eye-size) / 2 + 80px);
     top: calc(50% - var(--original-eye-size) / 2 - 80px);
-    font-size: 70px;
+    font-size: 55px;
     color: var(--eye-color);
     font-weight: bold;
     opacity: 0;
-    offset-path: path('M 0 0 C 100 50, 200 50, 300 0');
-    offset-distance: 0;
-    animation: happy-in-1 1.5s ease-in-out infinite alternate;
+    pointer-events: none;
+    transform: translate(20px, 50px);
+    animation: starRiseFallSwing 2s ease-in-out infinite;
 }
 
-@keyframes happy-in-1 {
+.star_1 {
+    content: '⭐';
+    position: absolute;
+    left: calc(50% + var(--original-eye-gap) / 2 + var(--original-eye-size) / 2 + 80px);
+    top: calc(50% - var(--original-eye-size) / 2 - 80px);
+    font-size: 55px;
+    color: var(--eye-color);
+    font-weight: bold;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(60px, 30px);
+    animation: starRiseFallSwing 2s ease-in-out infinite;
+}
+
+/* 左侧星星 */
+.face.mood-happy::before {
+    content: '⭐';
+    position: absolute;
+    left: calc(50% - var(--original-eye-gap) / 2 - var(--original-eye-size) / 2 - 80px);
+    top: calc(50% - var(--original-eye-size) / 2 - 80px);
+    font-size: 40px;
+    color: var(--eye-color);
+    font-weight: bold;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(50px, -30px);
+    /* 错开 0.4s，两颗星星不同步 */
+    animation: starRiseFallSwing 2s ease-in-out infinite;
+    animation-delay: 0.1s;
+}
+
+.star_2 {
+    content: '⭐';
+    position: absolute;
+    left: calc(50% - var(--original-eye-gap) / 2 - var(--original-eye-size) / 2 - 80px);
+    top: calc(50% - var(--original-eye-size) / 2 - 80px);
+    font-size: 40px;
+    color: var(--eye-color);
+    font-weight: bold;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(80px, -20px);
+    /* 错开 0.4s，两颗星星不同步 */
+    animation: starRiseFallSwing 2s ease-in-out infinite;
+    animation-delay: 0.1s;
+}
+
+@keyframes starRiseFallSwing {
     0% {
-        transform: translateY(300px);
-    }
-    10% {
-        opacity: 1;
-        transform: scale(1) translateY(-100px);
+        opacity: 0;
     }
     20% {
-        transform: translate(40px, 0px);
+        opacity: 1;
+    }
+    40% {
+        opacity: 1;
+    }
+    60% {
+        opacity: 0.9;
+    }
+    80% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0;
     }
 }
 
