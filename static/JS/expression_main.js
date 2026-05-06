@@ -5,12 +5,16 @@ const unlockBtn = document.getElementById('unlockBtn');
 const pupils = document.querySelectorAll('.pupil');
 const hidden_1 = document.querySelectorAll('.hidden_1');
 const hidden_2 = document.querySelectorAll('.hidden_2');
-const eye = document.querySelectorAll('.eye')
+const eye = document.querySelectorAll('.eye');
+const screenH = window.innerHeight;
+const screenW = window.innerWidth;
 
 let currentMood = 'neutral';
 let resetTimer = null, idleTimer = null, blinkTimer = null;
 const IDLE_TIME = 1200000;
 let socket = null, audioUnlocked = false;
+const interval = 15000;
+let intervalTimer = null;
 
 // 点击按钮：触发全屏 + 解锁声音
 unlockBtn.addEventListener('click', async () => {
@@ -25,6 +29,33 @@ unlockBtn.addEventListener('click', async () => {
     audioPlayer.play().catch(e => { });
 });
 
+// 瞳孔随机转动
+function rotateEyes() {
+    if (currentMood === 'sleep') return;
+    if (currentMood !== 'neutral') return;
+
+    let X = Math.random() * screenW;
+    let Y = Math.random() * screenH;
+
+    resetIdle();
+    pupils.forEach(pupil => {
+        const rect = pupil.parentElement.getBoundingClientRect();
+        const pupilX = rect.left + rect.width / 2;
+        const pupilY = rect.top + rect.height / 2;
+        
+        const dx = X - pupilX;
+        const dy = Y - pupilY;
+        const angle = Math.atan2(dy, dx);
+        
+        const dist = Math.min(10, Math.sqrt(dx*dx + dy*dy) / 15); 
+        const moveX = Math.cos(angle) * dist;
+        const moveY = Math.sin(angle) * dist;
+        
+        pupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+    });
+}
+
+// 随机修改眼睛颜色
 function changeEyeColor(){
     let R = Math.floor(Math.random()*256);
     let G = Math.floor(Math.random()*256);
@@ -58,6 +89,15 @@ function applyFixedRotationAndScale() {
     const scale = Math.min(h / ow, w / oh) * 0.92;
     faceContainer.style.transform = `translate(-50%, -50%) rotate(-90deg) scale(${scale})`;
 }
+
+// 触发随机转动
+function resetRotateEyes() {
+    if (intervalTimer) clearInterval(intervalTimer);
+    intervalTimer = setInterval(() => {
+        rotateEyes();
+    },interval);
+}
+
 // --- 表情控制 ---
 function setMood(mood) {
     let ischangeColor = null;
@@ -69,14 +109,19 @@ function setMood(mood) {
     if (mood !== 'neutral' && mood !== 'sleep') {
         face.classList.add(`mood-${mood}`);
         switch (mood) {
-            case 'angry':
+            case 'angry': 
                 hidden_1.forEach(h => h.style.opacity = '0');
                 hidden_2.forEach(h => h.style.opacity = '0');
+                pupils.forEach(p => p.style.transform = 'translate(-50%, -50%)');
+                eye.forEach(e => e.style.backgroundColor = '#f72c30');
                 break;
             case 'happy':
                 hidden_1.forEach(h => h.style.opacity = '0');
                 hidden_2.forEach(h => h.style.opacity = '0');
-                pupils.forEach(p => p.style.opacity = '0');
+                pupils.forEach(p => {
+                    p.style.opacity = '0';
+                    p.style.transform = 'translate(-50%, -50%)';
+                });
                 eye.forEach(e => e.style.backgroundColor = '#222');
                 break;
             case 'excited':
@@ -86,12 +131,14 @@ function setMood(mood) {
                     p.style.width = '120px';
                     p.style.height = '100px';
                     p.style.borderRadius = '50% 50% 0 0';
+                    p.style.transform = 'translate(-50%, -50%)';
                 });
                 ischangeColor = setInterval(() => changeEyeColor(), 100);
                 break;
             case 'confused':
                 hidden_1.forEach(h => h.style.opacity = '0');
                 hidden_2.forEach(h => h.style.opacity = '0');
+                pupils.forEach(p => p.style.transform = 'translate(-50%, -50%)');
                 break;
         }
         resetTimer = setTimeout(() => {
@@ -99,7 +146,8 @@ function setMood(mood) {
             currentMood = 'neutral';
             startIdleTimer();
             scheduleBlink();
-            eye.forEach(e => e.style.backgroundColor = '#00f0ff');
+            resetRotateEyes()
+            eye.forEach(e => e.style.backgroundColor = '#00f0ff')
             pupils.forEach(p => {
                 p.style.opacity = '0.9'
                 p.style.width = 'var(--original-pupil-size)';
@@ -122,13 +170,17 @@ function startIdleTimer() {
     if (idleTimer) clearTimeout(idleTimer);
     if (currentMood === 'neutral') {
         idleTimer = setTimeout(() => setMood('sleep'), IDLE_TIME);
+        pupils.forEach(p => p.style.transform = 'translate(-50%, -50%)');
     }
+    resetRotateEyes()
 }
+
 function resetIdle() {
     if (idleTimer) clearTimeout(idleTimer);
     if (currentMood === 'sleep') setMood('neutral');
     else startIdleTimer();
 }
+
 function scheduleBlink() {
     if (blinkTimer) clearTimeout(blinkTimer);
     const delay = Math.random() * 3000 + 2000;
@@ -181,6 +233,7 @@ window.addEventListener('load', () => {
     setMood(getMoodFromId(getUrlParameter('id')));
     startIdleTimer();
     scheduleBlink();
-    connectSocket();
+    connectSocket(); 
+    resetRotateEyes();
 });
 window.addEventListener('resize', applyFixedRotationAndScale);
