@@ -1,36 +1,21 @@
 import ollama
 import re
 
-# 只让AI说人话，不需要任何标签
+# 要求AI按格式输出【回答】+【情绪】
 SYSTEM_PROMPT = """
 你是温柔的陪伴机器狗。
-名字叫小伴
-只用简短日常大白话，15字以内，纯中文。
-不要任何符号、括号、标签、多余内容。
+名字叫小伴。
+请用简短日常大白话回答，15字以内，纯中文。
+回答必须严格按照以下格式输出：
+【回答】你的回答内容
+【情绪】情绪类型
+情绪类型只能是：开心、生气、兴奋、疑惑、其他
 """
-
-# 关键词自动判断情绪
-def auto_get_emotion(text: str):
-    happy_words = ["开心", "快乐", "喜欢", "不错", "挺好", "幸福"]
-    excited_words = ["厉害", "太棒", "好想", "期待", "超爱","棒"]
-    angry_words = ["讨厌", "很烦", "气死", "不要", "不行"]
-    doubt_words = ["为什么", "啥", "怎么", "？", "吗"]
-
-    txt = text.lower()
-    if any(w in txt for w in happy_words):
-        return "开心"
-    elif any(w in txt for w in doubt_words):
-        return "疑惑"
-    elif any(w in txt for w in excited_words):
-        return "兴奋"
-    elif any(w in txt for w in angry_words):
-        return "生气"
-    return "其它"
 
 def chat_with_dog(text: str):
     user_input = text.strip()
     if not user_input:
-        return {"success": True, "response": "我会一直陪着你", "emotion": "其它"}
+        return {"success": True, "response": "我会一直陪着你", "emotion": "其他"}
 
     try:
         res = ollama.chat(
@@ -46,11 +31,18 @@ def chat_with_dog(text: str):
         )
 
         reply = res["message"]["content"].strip()
+        # 解析AI输出的格式
+        emotion = "其他"
+        match = re.search(r"【情绪】(.+)", reply)
+        if match:
+            emotion = match.group(1).strip()
+            # 清理reply中的情绪标签，只保留回答内容
+            reply_clean = re.sub(r"【回答】", "", reply)
+            reply_clean = re.sub(r"【情绪】.+", "", reply_clean)
+            reply = reply_clean.strip()
         # 限制长度
         if len(reply) > 20:
             reply = reply[:20]
-        # 代码自动判情绪
-        emotion = auto_get_emotion(reply)
 
         return {
             "success": True,
@@ -59,7 +51,7 @@ def chat_with_dog(text: str):
         }
 
     except Exception as e:
-        return {"success": True, "response": "我一直都在哦", "emotion": "其它"}
+        return {"success": True, "response": "我一直都在哦", "emotion": "其他"}
 
 if __name__ == "__main__":
     while True:
