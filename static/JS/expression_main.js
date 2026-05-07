@@ -172,7 +172,7 @@ function startIdleTimer() {
         idleTimer = setTimeout(() => setMood('sleep'), IDLE_TIME);
         pupils.forEach(p => p.style.transform = 'translate(-50%, -50%)');
     }
-    resetRotateEyes()
+    resetRotateEyes();
 }
 
 function resetIdle() {
@@ -180,7 +180,7 @@ function resetIdle() {
     if (currentMood === 'sleep') setMood('neutral');
     else startIdleTimer();
 }
-
+// 眨眼
 function scheduleBlink() {
     if (blinkTimer) clearTimeout(blinkTimer);
     const delay = Math.random() * 3000 + 2000;
@@ -234,6 +234,5 @@ window.addEventListener('load', () => {
     startIdleTimer();
     scheduleBlink();
     connectSocket(); 
-    resetRotateEyes();
 });
 window.addEventListener('resize', applyFixedRotationAndScale);

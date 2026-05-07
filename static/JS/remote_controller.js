@@ -1,5 +1,6 @@
 const statusElement = document.getElementById('status');
 const textInput = document.getElementById('textInput');
+const ttsInput = document.getElementById('ttsInput');
 let socket = null;
 
 function connect() {
@@ -104,6 +105,28 @@ function sendText() {
 function handleKeyPress(event) {
     if (event.key === 'Enter') {
         sendText();
+    }
+}
+
+// 回车发送TTS
+function handleTtsKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendTtsOnly();
+    }
+}
+
+// 发送TTS Only消息
+function sendTtsOnly() {
+    const text = ttsInput.value.trim();
+    const mood = document.getElementById('ttsMood').value;
+    if (text && socket && socket.connected) {
+        const message = { type: 'tts_only', content: text, mood: mood, timestamp: Date.now() };
+        socket.emit('message', JSON.stringify(message));
+        console.log("📤 发送TTS:", text, "情绪:", mood);
+        statusElement.textContent = `发送TTS: ${text} (${mood})`;
+        ttsInput.value = '';
+    } else {
+        statusElement.textContent = "状态: 未连接或文本为空";
     }
 }
 

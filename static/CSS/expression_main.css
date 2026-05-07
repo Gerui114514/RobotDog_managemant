@@ -215,20 +215,6 @@ body {
     animation: starRiseFallSwing 2s ease-in-out infinite;
 }
 
-.star_1 {
-    content: '⭐';
-    position: absolute;
-    left: calc(50% + var(--original-eye-gap) / 2 + var(--original-eye-size) / 2 + 80px);
-    top: calc(50% - var(--original-eye-size) / 2 - 80px);
-    font-size: 55px;
-    color: var(--eye-color);
-    font-weight: bold;
-    opacity: 0;
-    pointer-events: none;
-    transform: translate(60px, 30px);
-    animation: starRiseFallSwing 2s ease-in-out infinite;
-}
-
 /* 左侧星星 */
 .face.mood-happy::before {
     content: '⭐';
@@ -241,22 +227,6 @@ body {
     opacity: 0;
     pointer-events: none;
     transform: translate(50px, -30px);
-    /* 错开 0.4s，两颗星星不同步 */
-    animation: starRiseFallSwing 2s ease-in-out infinite;
-    animation-delay: 0.1s;
-}
-
-.star_2 {
-    content: '⭐';
-    position: absolute;
-    left: calc(50% - var(--original-eye-gap) / 2 - var(--original-eye-size) / 2 - 80px);
-    top: calc(50% - var(--original-eye-size) / 2 - 80px);
-    font-size: 40px;
-    color: var(--eye-color);
-    font-weight: bold;
-    opacity: 0;
-    pointer-events: none;
-    transform: translate(80px, -20px);
     /* 错开 0.4s，两颗星星不同步 */
     animation: starRiseFallSwing 2s ease-in-out infinite;
     animation-delay: 0.1s;
