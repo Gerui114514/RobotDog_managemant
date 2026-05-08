@@ -1,0 +1,356 @@
+:root {
+    --bg-color: #111;
+    --face-color: #222;
+    --eye-color: #00f0ff;
+    --eye-angry-color: #f72c30;
+    --glow: 0 0 15px var(--eye-color);
+    --glow-angry: 0 0 20px var(--eye-angry-color);
+    /* 固定死原始尺寸，绝不自适应拉伸 */
+    --original-face-width: 640px;
+    --original-face-height: 360px;
+    --original-eye-size: 150px;
+    --original-eye-gap: 120px;
+    --original-pupil-size: 120px;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    background-color: var(--bg-color);
+    font-family: sans-serif;
+    color: #555;
+}
+
+.face-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* 固定宽高，禁止被全屏拉伸 */
+    width: var(--original-face-width);
+    height: var(--original-face-height);
+    transform-origin: center center;
+    z-index: 10;
+    /* 强制固定尺寸，禁止缩放挤压 */
+    flex-shrink: 0;
+    border-radius: 20px;
+}
+
+.face {
+    width: 100%;
+    height: 100%;
+    background: var(--face-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 眼睛间距写死，永久不变 */
+    gap: var(--original-eye-gap);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    position: relative;
+    border-radius: 20px;
+}
+
+.eye {
+    /* 眼睛大小写死 */
+    width: var(--original-eye-size);
+    height: var(--original-eye-size);
+    border: none;
+    border-radius: 50%;
+    background: var(--eye-color);
+    box-shadow: var(--glow);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    flex-shrink: 0;
+}
+
+.pupil {
+    width: var(--original-pupil-size);
+    height: var(--original-pupil-size);
+    background: #fefefed5;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.95;
+    transition: all 0.2s ease-out;
+}
+
+/* 高光 */
+.hidden_1 {
+    width: 15px;
+    height: 15px;
+    background: #ffffff;
+    border-radius: 50%;
+    position: static;
+    margin-top: 10px;
+    margin-left: 10px;
+    float: left;
+    transform: translate(80%, 80%);
+    opacity: 1;
+    transition: all 0.1s ease-out;
+}
+
+.hidden_2 {
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    border-radius: 50%;
+    position: static;
+    margin-top: 4px;
+    margin-left: 10px;
+    float: left;
+    transform: translate(80%, 80%);
+    opacity: 1;
+    transition: all 0.1s ease-out;
+}
+/* 生气样式变化 */
+.face.mood-angry .eye {
+    width: 160px;
+    height: 40px;
+    border-radius: 0;
+    background-color: var(--eye-angry-color);
+    box-shadow: var(--glow-angry);
+    border: none;
+}
+
+.face.mood-angry .eye.left {
+    transform: rotate(25deg) translateX(10px);
+}
+
+.face.mood-angry .eye.right {
+    transform: rotate(-25deg) translateX(-10px);
+}
+
+.face.mood-angry::after {
+    content: '!!!';
+    position: absolute;
+    left: calc(50% + var(--original-eye-gap) / 2 + var(--original-eye-size) / 2 + 80px);
+    top: calc(50% - var(--original-eye-size) / 2 - 80px);
+    font-size: 70px;
+    color: var(--eye-angry-color);
+    font-weight: bold;
+    text-shadow: 0 0 10px rgb(186, 26, 26);
+    opacity: 0;
+    animation: angry-in 0.2s forwards 0.1s; 
+    transform: rotate(30deg);
+}
+
+@keyframes angry-in {
+    from {
+        transform: translateX(300px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateX(0px);
+    }
+}
+/* 开心样式变化 */
+.face.mood-happy .eye {
+    width: 140px;
+    height: 110px;
+    background-color: rgb(34, 34, 34); 
+    border: 20px solid #00f0ff;
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    box-shadow: none;
+    animation: teetertotter 0.5s infinite;
+    transform-origin: center center;
+}
+
+@keyframes teetertotter {
+    0% {
+        transform: translateY(0px);
+    }
+    10% {
+        transform: translateY(1px);
+    }
+    20% {
+        transform: translateY(-1px);
+    }
+    30% {
+        transform: translateY(1px);
+    }
+    40% {
+        transform: translateY(-1px);
+    }
+    50% {
+        transform: translateY(1px);
+    }
+    60% {
+        transform: translateY(-1px);
+    }
+    70% {
+        transform: translateY(1px);
+    }
+    80% {
+        transform: translateY(-1px);
+    }
+    90% {
+        transform: translateY(1px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* 右侧星星 */
+.face.mood-happy::after {
+    content: '⭐';
+    position: absolute;
+    left: calc(50% + var(--original-eye-gap) / 2 + var(--original-eye-size) / 2 + 80px);
+    top: calc(50% - var(--original-eye-size) / 2 - 80px);
+    font-size: 55px;
+    color: var(--eye-color);
+    font-weight: bold;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(20px, 50px);
+    animation: starRiseFallSwing 2s ease-in-out infinite;
+}
+
+/* 左侧星星 */
+.face.mood-happy::before {
+    content: '⭐';
+    position: absolute;
+    left: calc(50% - var(--original-eye-gap) / 2 - var(--original-eye-size) / 2 - 80px);
+    top: calc(50% - var(--original-eye-size) / 2 - 80px);
+    font-size: 40px;
+    color: var(--eye-color);
+    font-weight: bold;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(50px, -30px);
+    /* 错开 0.4s，两颗星星不同步 */
+    animation: starRiseFallSwing 2s ease-in-out infinite;
+    animation-delay: 0.1s;
+}
+
+@keyframes starRiseFallSwing {
+    0% {
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    40% {
+        opacity: 1;
+    }
+    60% {
+        opacity: 0.9;
+    }
+    80% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* 兴奋样式变化 */
+.face.mood-excited .eye {
+    width: 150px;
+    height: 120px;
+    border-radius: 50% 50% 0 0;
+    animation: shake-anim 0.1s infinite;
+    transform-origin: center center;
+}
+
+@keyframes shake-anim {
+    0% {
+        transform: translate(2px, 2px);
+    }
+
+    25% {
+        transform: translate(-2px, -2px);
+    }
+
+    50% {
+        transform: translate(-2px, 2px);
+    }
+
+    75% {
+        transform: translate(2px, -2px);
+    }
+
+    100% {
+        transform: translate(2px, 2px);
+    }
+}
+
+/* 疑惑样式变化 */
+.face.mood-confused .eye {
+    width: 70px;
+    height: 40px;
+    border-radius: 20px;
+}
+
+.face.mood-confused .eye.right {
+    transform: rotate(15deg) translate(8px, -3px);
+}
+
+.face.mood-confused::after {
+    content: '?';
+    position: absolute;
+    left: calc(50% + var(--original-eye-gap) / 2 + var(--original-eye-size) / 2 + 40px);
+    top: calc(50% - var(--original-eye-size) / 2 - 60px);
+    font-size: 50px;
+    color: var(--eye-color);
+    font-weight: bold;
+    text-shadow: 0 0 10px var(--eye-color);
+    opacity: 0;
+    animation: pop-in 0.4s forwards 0.2s;
+}
+
+@keyframes pop-in {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.face.mood-sleep .eye {
+    width: 60px;
+    height: 4px;
+    background: var(--eye-color);
+    border-radius: 2px;
+    opacity: 0.5;
+}
+
+.eye.blinking {
+    animation: blink-animation 0.1s forwards;
+}
+
+@keyframes blink-animation {
+    0% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(0.1);
+    }
+
+    100% {
+        transform: scaleY(1);
+    }
+}
+
+.unlock-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    background: #00f0ff;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 100;
+    cursor: pointer;
+}

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>几何表情 - 主页 (WS)</title>
+    <style>
+        :root {
+            --bg-color: #111;
+            --face-color: #222;
+            --eye-color: #00f0ff;
+            --glow: 0 0 15px var(--eye-color);
+            /* 固定死原始尺寸，绝不自适应拉伸 */
+            --original-face-width: 640px;
+            --original-face-height: 360px;
+            --original-eye-size: 80px;
+            --original-eye-gap: 160px;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            position: fixed;
+            background-color: var(--bg-color);
+            font-family: sans-serif;
+            color: #555;
+        }
+
+        .face-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            /* 固定宽高，禁止被全屏拉伸 */
+            width: var(--original-face-width);
+            height: var(--original-face-height);
+            transform-origin: center center;
+            z-index: 10;
+            /* 强制固定尺寸，禁止缩放挤压 */
+            flex-shrink: 0;
+        }
+
+        .face {
+            width: 100%;
+            height: 100%;
+            background: var(--face-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 眼睛间距写死，永久不变 */
+            gap: var(--original-eye-gap);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .eye {
+            /* 眼睛大小写死 */
+            width: var(--original-eye-size);
+            height: var(--original-eye-size);
+            border-radius: 50%;
+            background: var(--eye-color);
+            box-shadow: var(--glow);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            flex-shrink: 0;
+        }
+
+        .pupil {
+            width: 30px;
+            height: 30px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        .face.mood-angry .eye {
+            width: 80px;
+            height: 15px;
+            border-radius: 0;
+        }
+        .face.mood-angry .eye.left { transform: rotate(25deg) translateX(10px); }
+        .face.mood-angry .eye.right { transform: rotate(-25deg) translateX(-10px); }
+
+        .face.mood-happy .eye {
+            width: 80px;
+            height: 50px;
+            border-radius: 50% 50% 10px 10px;
+        }
+
+        .face.mood-excited .eye {
+            width: 80px;
+            height: 60px;
+            border-radius: 50% 50% 0 0;
+            animation: shake-anim 0.1s infinite;
+            transform-origin: center center;
+        }
+
+        @keyframes shake-anim {
+            0% { transform: translate(1px, 1px); }
+            25% { transform: translate(-1px, -1px); }
+            50% { transform: translate(-1px, 1px); }
+            75% { transform: translate(1px, -1px); }
+            100% { transform: translate(1px, 1px); }
+        }
+
+        .face.mood-confused .eye {
+            width: 70px;
+            height: 40px;
+            border-radius: 20px;
+        }
+        .face.mood-confused .eye.right { transform: rotate(15deg) translate(8px, -3px); }
+
+        .face.mood-confused::after {
+            content: '?';
+            position: absolute;
+            left: calc(50% + var(--original-eye-gap)/2 + var(--original-eye-size)/2 + 40px);
+            top: calc(50% - var(--original-eye-size)/2 - 60px);
+            font-size: 50px;
+            color: var(--eye-color);
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--eye-color);
+            opacity: 0;
+            animation: pop-in 0.4s forwards 0.2s;
+        }
+
+        @keyframes pop-in { to { opacity:1; transform:scale(1); } }
+
+        .face.mood-sleep .eye {
+            width: 60px;
+            height: 4px;
+            background: var(--eye-color);
+            border-radius: 2px;
+            opacity: 0.5;
+        }
+
+        .eye.blinking {
+            animation: blink-animation 0.1s forwards;
+        }
+        @keyframes blink-animation {
+            0% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+            100% { transform: scaleY(1); }
+        }
+
+        .unlock-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #00f0ff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 100;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<button class="unlock-btn" id="unlockBtn">🔊 全屏+开启声音</button>
+
+<div class="face-container" id="faceContainer">
+    <div class="face" id="face">
+        <div class="eye left"><div class="pupil"></div></div>
+        <div class="eye right"><div class="pupil"></div></div>
+    </div>
+</div>
+
+<audio id="audioPlayer" playsinline>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+<script>
+    const face = document.getElementById('face');
+    const faceContainer = document.getElementById('faceContainer');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const unlockBtn = document.getElementById('unlockBtn');
+    let currentMood = 'neutral';
+    let resetTimer = null, idleTimer = null, blinkTimer = null;
+    const IDLE_TIME = 30000;
+    let socket = null, audioUnlocked = false;
+
+    // 点击按钮：触发全屏 + 解锁声音
+    unlockBtn.addEventListener('click', async () => {
+        // 浏览器原生全屏
+        if(document.documentElement.requestFullscreen){
+            await document.documentElement.requestFullscreen().catch(e=>{});
+        }else if(document.documentElement.webkitRequestFullscreen){
+            document.documentElement.webkitRequestFullscreen();
+        }
+        audioUnlocked = true;
+        unlockBtn.style.display = 'none';
+        audioPlayer.play().catch(e=>{});
+    });
+
+    function getUrlParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    function getMoodFromId(idStr) {
+        switch (idStr) {
+            case '1': return 'angry';
+            case '2': return 'happy';
+            case '3': return 'excited';
+            case '4': return 'confused';
+            default: return 'neutral';
+        }
+    }
+
+    // 只做整体等比缩小，绝不改变眼睛间距/尺寸
+    function applyFixedRotationAndScale() {
+        const w = window.innerWidth, h = window.innerHeight;
+        const ow = 640, oh = 360;
+        // 整体容器等比缩放，内部元素尺寸、间距完全固定
+        const scale = Math.min(h / ow, w / oh) * 0.92;
+        faceContainer.style.transform = `translate(-50%, -50%) rotate(-90deg) scale(${scale})`;
+    }
+
+    function setMood(mood) {
+        face.className = 'face';
+        if (resetTimer) clearTimeout(resetTimer);
+        currentMood = mood;
+        if (mood !== 'neutral' && mood !== 'sleep') {
+            face.classList.add(`mood-${mood}`);
+            resetTimer = setTimeout(() => {
+                face.className = 'face';
+                currentMood = 'neutral';
+                startIdleTimer();
+                scheduleBlink();
+            }, 1500);
+        } else {
+            if (mood !== 'neutral') face.classList.add(`mood-${mood}`);
+            if (blinkTimer) clearTimeout(blinkTimer);
+            if (mood === 'neutral' || mood === 'excited') scheduleBlink();
+        }
+    }
+
+    function startIdleTimer() {
+        if (idleTimer) clearTimeout(idleTimer);
+        if (currentMood === 'neutral') {
+            idleTimer = setTimeout(() => setMood('sleep'), IDLE_TIME);
+        }
+    }
+    function resetIdle() {
+        if (idleTimer) clearTimeout(idleTimer);
+        if (currentMood === 'sleep') setMood('neutral');
+        else startIdleTimer();
+    }
+    function scheduleBlink() {
+        if (blinkTimer) clearTimeout(blinkTimer);
+        const delay = Math.random() * 3000 + 2000;
+        blinkTimer = setTimeout(() => {
+            if (currentMood === 'neutral' || currentMood === 'excited') {
+                document.querySelectorAll('.eye').forEach(eye => {
+                    eye.classList.add('blinking');
+                    eye.addEventListener('animationend', () => {
+                        eye.classList.remove('blinking');
+                        scheduleBlink();
+                    }, { once: true });
+                });
+            }
+        }, delay);
+    }
+
+    function playAudio(base64Data) {
+        if (!audioUnlocked) return;
+        try {
+            const binary = atob(base64Data);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            const blob = new Blob([bytes], { type: 'audio/wav' });
+            const url = URL.createObjectURL(blob);
+            audioPlayer.src = url;
+            audioPlayer.onended = () => URL.revokeObjectURL(url);
+            audioPlayer.play();
+        } catch (e) {}
+    }
+
+    document.addEventListener('keydown', (e) => {
+        resetIdle();
+        const k = e.key.toLowerCase();
+        if (k === 'a') setMood('angry');
+        if (k === 'h') setMood('happy');
+        if (k === 'e') setMood('excited');
+        if (k === 'q') setMood('confused');
+    });
+
+    function connectSocket() {
+        socket = io(window.location.origin, { transports: ['websocket','polling'] });
+        socket.on('connect', () => console.log("WS连接成功"));
+        socket.on('message', (data) => {
+            try {
+                const d = JSON.parse(data);
+                if (d.type === 'command') setMood(d.value);
+            } catch (e) {}
+        });
+        socket.on('audio_data', (data) => {
+            try {
+                const d = JSON.parse(data);
+                playAudio(d.data);
+            } catch (e) {}
+        });
+    }
+
+    window.addEventListener('load', () => {
+        applyFixedRotationAndScale();
+        setMood(getMoodFromId(getUrlParameter('id')));
+        // startIdleTimer();
+        scheduleBlink();
+        connectSocket();
+    });
+    window.addEventListener('resize', applyFixedRotationAndScale);
+</script>
+</body>
+</html>
