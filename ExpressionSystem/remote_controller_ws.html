@@ -1,60 +1,56 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <title>几何表情 - 遥控器 (WS)</title>
-    <link rel="stylesheet" href="static/CSS/remote_controller.css">
 </head>
-
 <body>
-    <h1>遥控器 (Socket.IO)</h1>
+<h1>遥控器 (Socket.IO)</h1>
 
-    <!-- 原有按钮 -->
-    <div class="mood-buttons">
-        <h3>表情按钮组</h3>
-        <button onclick="send('angry')">A - 生气</button>
-        <button onclick="send('happy')">H - 开心</button>
-        <button onclick="send('excited')">E - 兴奋</button>
-        <button onclick="send('confused')">Q - 疑惑</button>
-        <button onclick="send('neutral')">N - 中立</button>
-        <button onclick="send('sleep')">S - 睡眠</button>
-    </div>
+<!-- 原有按钮 -->
+<div class="mood-buttons">
+    <h3>表情按钮组</h3>
+    <button onclick="send('angry')">A - 生气</button>
+    <button onclick="send('happy')">H - 开心</button>
+    <button onclick="send('excited')">E - 兴奋</button>
+    <button onclick="send('confused')">Q - 疑惑</button>
+    <button onclick="send('neutral')">N - 中立</button>
+    <button onclick="send('sleep')">S - 睡眠</button>
+</div>
 
-    <!-- 新增按钮组：1.愤怒 2.开心 3.兴奋 4.疑惑 -->
-    <div class="mood-buttons">
-        <h3>机器狗动作按钮组</h3>
-        <button onclick="sendById('1')">1 - 愤怒</button>
-        <button onclick="sendById('2')">2 - 开心</button>
-        <button onclick="sendById('3')">3 - 兴奋</button>
-        <button onclick="sendById('4')">4 - 疑惑</button>
-    </div>
+<!-- 新增按钮组：1.愤怒 2.开心 3.兴奋 4.疑惑 -->
+<div class="mood-buttons">
+    <h3>机器狗动作按钮组</h3>
+    <button onclick="sendById('1')">1 - 愤怒</button>
+    <button onclick="sendById('2')">2 - 开心</button>
+    <button onclick="sendById('3')">3 - 兴奋</button>
+    <button onclick="sendById('4')">4 - 疑惑</button>
+</div>
 
-    <!-- LLM+TTS 输入框 -->
-    <div style="margin: 20px 0;">
-        <h3>LLM + TTS</h3>
-        <input type="text" id="textInput" placeholder="输入文本（LLM+TTS）..." onkeypress="handleKeyPress(event)">
-        <button onclick="sendText()">发送文本</button>
-    </div>
+<!-- LLM+TTS 输入框 -->
+<div style="margin: 20px 0;">
+    <h3>LLM + TTS</h3>
+    <input type="text" id="textInput" placeholder="输入文本（LLM+TTS）..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendText()">发送文本</button>
+</div>
 
-    <!-- TTS Only 输入框 -->
-    <div style="margin: 20px 0;">
-        <h3>TTS Only</h3>
-        <select id="ttsMood" style="background:#222;border:2px solid #00f0ff;color:#00f0ff;padding:8px;margin:5px;">
-            <option value="neutral">中性</option>
-            <option value="happy">开心</option>
-            <option value="angry">生气</option>
-            <option value="confused">疑惑</option>
-            <option value="excited">兴奋</option>
-        </select>
-        <input type="text" id="ttsInput" placeholder="输入文本（仅TTS）..." onkeypress="handleTtsKeyPress(event)">
-        <button onclick="sendTtsOnly()">发送TTS</button>
-    </div>
+<!-- TTS Only 输入框 -->
+<div style="margin: 20px 0;">
+    <h3>TTS Only</h3>
+    <select id="ttsMood" style="background:#222;border:2px solid #00f0ff;color:#00f0ff;padding:8px;margin:5px;">
+        <option value="neutral">中性</option>
+        <option value="happy">开心</option>
+        <option value="angry">生气</option>
+        <option value="confused">疑惑</option>
+        <option value="excited">兴奋</option>
+    </select>
+    <input type="text" id="ttsInput" placeholder="输入文本（仅TTS）..." onkeypress="handleTtsKeyPress(event)">
+    <button onclick="sendTtsOnly()">发送TTS</button>
+</div>
 
-    <div id="status">状态: 连接中...</div>
+<div id="status">状态: 连接中...</div>
 
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="static/JS/remote_controller.js"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="../static/JS/remote_controller.js"></script>
 </body>
-
 </html>
